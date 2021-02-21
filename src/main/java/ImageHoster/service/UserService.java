@@ -4,12 +4,16 @@ import ImageHoster.model.User;
 import ImageHoster.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+    private static final String validPasswordPattern = "^(?=.*[a-z]|[A-Z])(?=.*[0-9])(?=.*[!@#&()–[{}]:;',?/*~$^+=<>]).{3,16}$";
+    private static final Pattern pattern = Pattern.compile(validPasswordPattern);
 
     //Call the registerUser() method in the UserRepository class to persist the user record in the database
     public void registerUser(User newUser) {
@@ -31,5 +35,9 @@ public class UserService {
             return null;
         }
     }
-
+    public boolean isPasswordStrong(User newUser) {
+        String password = newUser.getPassword();
+        Matcher matcher = pattern.matcher(password);
+        return matcher.matches();
+    }
 }
