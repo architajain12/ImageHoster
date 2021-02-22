@@ -17,6 +17,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.*;
+import ImageHoster.model.Comment;
+import ImageHoster.service.CommentService;
 
 @Controller
 public class ImageController {
@@ -46,10 +48,11 @@ public class ImageController {
     //Here a list of tags is added in the Model type object
     //this list is then sent to 'images/image.html' file and the tags are displayed
     @RequestMapping("/images/{imageId}/{title}")
-    public String showImage(@PathVariable("title") String title, @PathVariable("imageId") Integer imageId, Model model) {
+    public String showImage(@PathVariable("title") String title, @PathVariable("imageId") Integer imageId, Model model) throws NullPointerException {
         Image image = imageService.getImage(imageId);
         model.addAttribute("image", image);
         model.addAttribute("tags", image.getTags());
+        model.addAttribute("comments", (List<Comment>)image.getComments() );
         return "images/image";
     }
 
@@ -96,11 +99,11 @@ public class ImageController {
         Image image = imageService.getImage(imageId);
         User imgOwner = image.getUser();
         User loggedInUser = (User) session.getAttribute("loggeduser");
-        if(!imgOwner.getUsername().equalsIgnoreCase(loggedInUser.getUsername())){
+        if(imgOwner.getId() != loggedInUser.getId()){
             String error = "Only the owner of the image can edit the image";
             String imageTitle = image.getTitle();
             redirect.addAttribute("editError", error).addFlashAttribute("editError", error);
-            return "redirect:images/"+imageId+"/"+imageTitle;
+            return "redirect:/images/"+imageId+"/"+imageTitle;
         }
         else {
             String tags = convertTagsToString(image.getTags());
@@ -154,11 +157,11 @@ public class ImageController {
         User imgOwner = image.getUser();
         User loggedInUser = (User) session.getAttribute("loggeduser");
 
-        if(!imgOwner.getUsername().equalsIgnoreCase(loggedInUser.getUsername())){
+        if(imgOwner.getId() != loggedInUser.getId()){
             String error = "Only the owner of the image can delete the image";
             String imageTitle = image.getTitle();
             redirect.addAttribute("deleteError", error).addFlashAttribute("deleteError", error);
-            return "redirect:images/"+imageId+"/"+imageTitle;
+            return "redirect:/images/"+imageId+"/"+imageTitle;
         }
         else {
             imageService.deleteImage(imageId);

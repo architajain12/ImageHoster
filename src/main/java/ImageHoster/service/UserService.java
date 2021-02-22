@@ -12,9 +12,8 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
-    private static final String validPasswordPattern = "^(?=.*[a-z]|[A-Z])(?=.*[0-9])(?=.*[!@#&()–[{}]:;',?/*~$^+=<>]).{3,16}$";
+    private static final String validPasswordPattern = "(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[@#$%^&+=]).{3,}";
     private static final Pattern pattern = Pattern.compile(validPasswordPattern);
-
     //Call the registerUser() method in the UserRepository class to persist the user record in the database
     public void registerUser(User newUser) {
         userRepository.registerUser(newUser);
